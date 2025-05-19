@@ -9,10 +9,40 @@ import (
     "path/filepath"
 )
 
-func ParseDirectory(dir string) {
-	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error))
-	if err != nil{
-		return err
-	}
+//Parsing Logic
+func parseFile(filename string) error {
+    fset := token.NewFileSet() //create a token set for the file
+    node, err := parser.ParseFile(fset, filename, nil, parser.AllErrors) // parser reads the file, parse the go code then return an AST node for that file
+    if err != nil{
+        return err //if there is an error parsing the file, return the error
+    }
 
+    ast.Inspect(node, func(n ast.Node) bool{
+        call, ok := n.(*ast.CallExpr) //check if the node is a function call
+        if ok{
+            fmt.Println("Function call found:", call.Fun) //if it is a function call, print the function name
+        }
+        return true //continue traversing the AST
+    })
+    return nil
+}
+
+func WalkFunc(path string, d os.DirEntry, err error) error {
+    if err != nil {
+        return err
+    }
+
+    if !d.IsDir() && filepath.Ext(path) == ".go" { //checks if the file is a .go file
+        fmt.Println("Parsing file:", path)
+        err := parseFile(path) // calls parseFile function to parse the file
+        if err != nil { //if there is an error parsing the file, print error
+            fmt.Println("Error parsing file:", err)
+        }
+    }
+
+    return nil
+}
+
+func ParseDirectory(dir string) error {
+    return filepath.WalkDir(dir, WalkFunc)
 }

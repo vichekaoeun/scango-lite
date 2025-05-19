@@ -20,7 +20,12 @@ func scanCurrDir() {
         fmt.Println("Error getting current directory:", err)
         return
     }
-    fmt.Println("Scanning: ", dir, "..")
+    err = ParseDirectory(dir) //parse the current directory
+    if err != nil{
+        fmt.Println("Error parsing directory:", err)
+        return
+    }
+    fmt.Println("Scan complete.")
 }
 
 func main() {
