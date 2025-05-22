@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Security Scan",
+            "type": "shell",
+            "command": "go run . run",
+            "problemMatcher": {
+                "owner": "gosec-lite",
+                "pattern": [
+                    {
+                        "regexp": "^(.*):(\\d+):(\\d+): \\[WARNING\\] (.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "message": 4
+                    }
+                ]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
