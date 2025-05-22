@@ -47,6 +47,8 @@ func CheckForSecrets(n ast.Node, fset *token.FileSet, filename string) { //takes
 			}
 		}
 	}
+
+	checkStructLiteral(n, fset, filename)
 }
 
 
@@ -63,4 +65,29 @@ func isSuspiciousName(name string) bool { //compare the name with the suspicious
 func isStringLiteral(expr ast.Expr) bool{
 	lit, ok := expr.(*ast.BasicLit); //check if the expression is a basic literal
 	return ok && lit.Kind == token.STRING //check if the literal is a string
+}
+
+func checkStructLiteral(n ast.Node, fset *token.FileSet, filename string) {
+    compLit, ok := n.(*ast.CompositeLit)
+    if !ok {
+        return
+    }
+
+    for _, elt := range compLit.Elts {
+        kv, ok := elt.(*ast.KeyValueExpr)
+        if !ok {
+            continue
+        }
+
+        keyIdent, ok := kv.Key.(*ast.Ident)
+        if !ok {
+            continue
+        }
+
+        if isSuspiciousName(keyIdent.Name) {
+            if lit, ok := kv.Value.(*ast.BasicLit); ok && lit.Kind == token.STRING {
+                fmt.Printf("[WARNING] Hardcoded secret field {%s} at %s\n", keyIdent.Name, fset.Position(lit.Pos()))
+            }
+        }
+    }
 }
