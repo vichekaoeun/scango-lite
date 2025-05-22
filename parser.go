@@ -7,6 +7,7 @@ import (
     "go/ast"
     "os"
     "path/filepath"
+    "cli/rules"
 )
 
 //Parsing Logic
@@ -18,10 +19,7 @@ func parseFile(filename string) error {
     }
 
     ast.Inspect(node, func(n ast.Node) bool{
-        call, ok := n.(*ast.CallExpr) //check if the node is a function call
-        if ok{
-            fmt.Println("Function call found:", call.Fun) //if it is a function call, print the function name
-        }
+        rules.CheckForSecrets(n, fset, filename) //call the checkForSecrets function to check for secrets in the AST
         return true //continue traversing the AST
     })
     return nil

@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
-    fmt.Println("hello")
-    exec.Command("ls", "-la")
+    password := "hunter2"
+    var userID = "123"
+    apiKey := "abc" + userID
 }
