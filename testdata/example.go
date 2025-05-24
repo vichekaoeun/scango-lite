@@ -3,7 +3,15 @@ package main
 import (
     "fmt"
     "os/exec"
+    "database/sql"
 )
+
+func vulnerable(userInput string, db *sql.DB) {
+    db.Query("SELECT * FROM users WHERE name = '" + userInput + "'")
+
+
+    db.Exec(fmt.Sprintf("DELETE FROM users WHERE name = '%s'", userInput))
+}
 
 func main() {
     password := "hunter2"
