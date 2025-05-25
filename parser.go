@@ -21,6 +21,8 @@ func parseFile(filename string) error {
     ast.Inspect(node, func(n ast.Node) bool{
         rules.CheckForSecrets(n, fset, filename) //call the checkForSecrets function to check for secrets in the AST
         rules.CheckSQLInjection(n, fset, filename) //call the checkSQLInjection function to check for SQL injection in the AST
+        rules.CheckCommandInjection(n, fset, filename)
+        rules.CheckInsecureHTTP(n, fset, filename)
         return true //continue traversing the AST
     })
     return nil

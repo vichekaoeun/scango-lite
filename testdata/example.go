@@ -22,4 +22,12 @@ func main() {
         Password: "hunter2",
         Token: "abc123",
     }
-}
+    exec.Command("sh", "-c", userInput)
+    exec.Command("ls", userInput + " | grep something")
+    exec.Command(fmt.Sprintf("ls %s", userInput))
+    http.Get("http://example.com/api")
+    http.Post("http://insecure-site.com", "data", nil)
+    client.Get("http://api.example.com")
+    url := "http://example.com" + path
+    http.Get(fmt.Sprintf("http://api.com/users/%s", userID))
+    }
