@@ -9,6 +9,7 @@ import (
 func vulnerable(userInput string, db *sql.DB) {
     db.Query("SELECT * FROM users WHERE name = '" + userInput + "'")
 
+    query := "SELECT * FROM users WHERE id = " + userInput
 
     db.Exec(fmt.Sprintf("DELETE FROM users WHERE name = '%s'", userInput))
 }
