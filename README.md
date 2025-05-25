@@ -5,7 +5,7 @@ A lightweight static analyzer for Go security issues.
 ## Installation
 
 ```bash
-go install github.com/yourusername/gosec-lite@latest
+go install github.com/yourusername/scango-lite@latest
 ```
 ## Usage
 
