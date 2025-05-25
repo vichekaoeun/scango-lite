@@ -1,16 +1,15 @@
 package rules
 
 import (
-    "fmt"
     "go/ast"
     "go/token"
     "strings"
+    "cli/output"
 )
 
 var sqlKeywords = []string{
     "select", "insert", "update", "delete", "drop", "union", "from", "where",
 }
-
 
 func looksLikeSQL(s string) bool {
     s = strings.ToLower(s)
@@ -27,15 +26,18 @@ func analyzeExprForSQL(expr ast.Expr, fset *token.FileSet, filename, funcName st
     case *ast.BasicLit:
         if val.Kind == token.STRING && looksLikeSQL(val.Value) {
             pos := fset.Position(val.Pos())
-            fmt.Printf("%s:%d:%d: [WARNING] SQL injection: raw SQL in %s\n", pos.Filename, pos.Line, pos.Column, funcName)
+            output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                "SQL injection", "raw SQL in " + funcName)
         }
     case *ast.BinaryExpr:
         pos := fset.Position(val.Pos())
-        fmt.Printf("%s:%d:%d: [WARNING] SQL injection: concatenated SQL in %s\n", pos.Filename, pos.Line, pos.Column, funcName)
+        output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+            "SQL injection", "concatenated SQL in " + funcName)
     case *ast.CallExpr:
         if fun, ok := val.Fun.(*ast.Ident); ok && fun.Name == "Sprintf" {
             pos := fset.Position(val.Pos())
-            fmt.Printf("%s:%d:%d: [WARNING] SQL injection via fmt.Sprintf in %s\n", pos.Filename, pos.Line, pos.Column, funcName)
+            output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+                "SQL injection", "fmt.Sprintf in " + funcName)
         }
     }
 }
@@ -60,14 +62,14 @@ func CheckSQLInjection(n ast.Node, fset *token.FileSet, filename string) {
             switch argType := arg.(type) {
             case *ast.BinaryExpr:
                 if argType.Op == token.ADD {
-                    fmt.Printf("%s:%d:%d: [WARNING] SQL injection: string concatenation in %s\n", 
-                        pos.Filename, pos.Line, pos.Column, funcName)
+                    output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+                        "SQL injection", "string concatenation in " + funcName)
                 }
             case *ast.CallExpr:
                 if fun, ok := argType.Fun.(*ast.SelectorExpr); ok {
                     if x, ok := fun.X.(*ast.Ident); ok && x.Name == "fmt" && fun.Sel.Name == "Sprintf" {
-                        fmt.Printf("%s:%d:%d: [WARNING] SQL injection: fmt.Sprintf in %s\n", 
-                            pos.Filename, pos.Line, pos.Column, funcName)
+                        output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+                            "SQL injection", "fmt.Sprintf in " + funcName)
                     }
                 }
             }
@@ -82,8 +84,8 @@ func CheckSQLInjection(n ast.Node, fset *token.FileSet, filename string) {
                 if binExpr, ok := rhs.(*ast.BinaryExpr); ok && binExpr.Op == token.ADD {
                     if containsSQLPattern(binExpr) {
                         pos := fset.Position(binExpr.Pos())
-                        fmt.Printf("%s:%d:%d: [WARNING] SQL injection: dangerous SQL string concatenation in assignment\n", 
-                            pos.Filename, pos.Line, pos.Column)
+                        output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+                            "SQL injection", "dangerous SQL string concatenation in assignment")
                     }
                 }
             }
@@ -102,5 +104,3 @@ func containsSQLPattern(expr *ast.BinaryExpr) bool {
     // Check if either side contains SQL keywords
     return checkExprForSQL(expr.X) || checkExprForSQL(expr.Y)
 }
-
-

@@ -1,10 +1,10 @@
 package rules
 
 import (
-    "fmt"
     "go/ast"
     "go/token"
     "strings"
+    "cli/output"
 )
 
 func CheckCommandInjection(n ast.Node, fset *token.FileSet, filename string) {
@@ -53,22 +53,22 @@ func CheckCommandInjection(n ast.Node, fset *token.FileSet, filename string) {
         case *ast.BinaryExpr:
             // String concatenation - potentially dangerous
             if argType.Op == token.ADD {
-                fmt.Printf("%s:%d:%d: [WARNING] Command injection: string concatenation in exec.%s\n", 
-                    pos.Filename, pos.Line, pos.Column, funcName)
+                output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                    "Command injection", "string concatenation in exec." + funcName)
             }
         case *ast.CallExpr:
             // fmt.Sprintf - potentially dangerous
             if fun, ok := argType.Fun.(*ast.SelectorExpr); ok {
                 if x, ok := fun.X.(*ast.Ident); ok && x.Name == "fmt" && fun.Sel.Name == "Sprintf" {
-                    fmt.Printf("%s:%d:%d: [WARNING] Command injection: fmt.Sprintf in exec.%s\n", 
-                        pos.Filename, pos.Line, pos.Column, funcName)
+                    output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                        "Command injection", "fmt.Sprintf in exec." + funcName)
                 }
             }
         case *ast.BasicLit:
             // Check for shell execution patterns
             if argType.Kind == token.STRING && containsShellPattern(argType.Value) {
-                fmt.Printf("%s:%d:%d: [WARNING] Command injection: shell execution in exec.%s\n", 
-                    pos.Filename, pos.Line, pos.Column, funcName)
+                output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                    "Command injection", "shell execution in exec." + funcName)
             }
         }
     }

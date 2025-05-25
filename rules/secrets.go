@@ -1,11 +1,12 @@
 package rules
 
 import(
-	"fmt"
 	"go/ast"
 	"go/token"
 	"strings"
+	"cli/output"
 )
+
 //our list of suspicious names
 //these are the names we will check against
 var suspiciousNames = []string{
@@ -18,15 +19,14 @@ func CheckForSecrets(n ast.Node, fset *token.FileSet, filename string) { //takes
 		for i, name := range spec.Names{ //iterate over the variables in spec
 			if isSuspiciousName(name.Name) && i < len(spec.Values){ //checks if the name is suspicious and exit if there are more values than variables names
 				if lit, ok := spec.Values[i].(*ast.BasicLit); ok && lit.Kind == token.STRING {
-					fmt.Printf("%s:%d:%d: [WARNING] Hardcoded secret {%s}\n",
-						filename,
-						fset.Position(lit.Pos()).Line,
-						fset.Position(lit.Pos()).Column,
-						name.Name)
+					pos := fset.Position(lit.Pos())
+					output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+						"Hardcoded secret", "hardcoded value in variable " + name.Name)
 				} else if bin, ok := spec.Values[i].(*ast.BinaryExpr); ok && bin.Op == token.ADD {
 					if isStringLiteral(bin.X) || isStringLiteral(bin.Y) {
 						pos := fset.Position(bin.Pos())
-						fmt.Printf("%s:%d:%d: [WARNING] Suspicious string concat in {%s}\n", pos.Filename, pos.Line, pos.Column, name.Name)
+						output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+							"Hardcoded secret", "suspicious string concatenation in " + name.Name)
 					}
 				}
 			}
@@ -41,15 +41,15 @@ func CheckForSecrets(n ast.Node, fset *token.FileSet, filename string) { //takes
 				if isSuspiciousName(ident.Name) && i < len(assign.Rhs){
                     // First: check for string literal
 					if lit, ok := assign.Rhs[i].(*ast.BasicLit); ok && lit.Kind == token.STRING {
-						fmt.Printf("%s:%d:%d: [WARNING] Hardcoded secret {%s}\n",
-							filename,
-							fset.Position(lit.Pos()).Line,
-							fset.Position(lit.Pos()).Column,
-							ident.Name)
+						pos := fset.Position(lit.Pos())
+						output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+							"Hardcoded secret", "hardcoded value in variable " + ident.Name)
 					} else if bin, ok := assign.Rhs[i].(*ast.BinaryExpr); ok && bin.Op == token.ADD {
 						// Second: check for string concatenation
 						if isStringLiteral(bin.X) || isStringLiteral(bin.Y) {
-							fmt.Printf("[WARNING] Suspicious string concat in {%s} at %s\n", ident.Name, fset.Position(bin.Pos()))
+							pos := fset.Position(bin.Pos())
+							output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+								"Hardcoded secret", "suspicious string concatenation in " + ident.Name)
 						}
 					}
 				}
@@ -59,7 +59,6 @@ func CheckForSecrets(n ast.Node, fset *token.FileSet, filename string) { //takes
 
 	checkStructLiteral(n, fset, filename)
 }
-
 
 func isSuspiciousName(name string) bool { //compare the name with the suspicious names
     name = strings.ToLower(name)
@@ -96,7 +95,8 @@ func checkStructLiteral(n ast.Node, fset *token.FileSet, filename string) {
         if isSuspiciousName(keyIdent.Name) {
             if lit, ok := kv.Value.(*ast.BasicLit); ok && lit.Kind == token.STRING {
                 pos := fset.Position(lit.Pos())
-				fmt.Printf("%s:%d:%d: [WARNING] Hardcoded secret field {%s}\n", pos.Filename, pos.Line, pos.Column, keyIdent.Name)
+				output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column,
+					"Hardcoded secret", "hardcoded value in struct field " + keyIdent.Name)
             }
         }
     }

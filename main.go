@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 import "os"
+import "cli/output"
 
 func printHelp() {
     fmt.Println(`gosec-lite - A lightweight static analyzer for Go security issues
@@ -25,7 +26,7 @@ func scanCurrDir() {
         fmt.Println("Error parsing directory:", err)
         return
     }
-    fmt.Println("Scan complete.")
+    output.PrintSummary()
 }
 
 func main() {

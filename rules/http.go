@@ -1,10 +1,10 @@
 package rules
 
 import (
-    "fmt"
     "go/ast"
     "go/token"
     "strings"
+    "cli/output"
 )
 
 func CheckInsecureHTTP(n ast.Node, fset *token.FileSet, filename string) {
@@ -56,15 +56,15 @@ func CheckInsecureHTTP(n ast.Node, fset *token.FileSet, filename string) {
         case *ast.BasicLit:
             if argType.Kind == token.STRING && isInsecureURL(argType.Value) {
                 pos := fset.Position(argType.Pos())
-                fmt.Printf("%s:%d:%d: [WARNING] Insecure HTTP: using HTTP instead of HTTPS in %s\n", 
-                    pos.Filename, pos.Line, pos.Column, funcName)
+                output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                    "Insecure HTTP", "using HTTP instead of HTTPS in " + funcName)
             }
         case *ast.BinaryExpr:
             // Check for URL concatenation that might result in HTTP
             if argType.Op == token.ADD && containsHTTPPattern(argType) {
                 pos := fset.Position(argType.Pos())
-                fmt.Printf("%s:%d:%d: [WARNING] Insecure HTTP: potential HTTP URL in concatenation for %s\n", 
-                    pos.Filename, pos.Line, pos.Column, funcName)
+                output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                    "Insecure HTTP", "potential HTTP URL in concatenation for " + funcName)
             }
         case *ast.CallExpr:
             // Check fmt.Sprintf for HTTP URLs
@@ -72,8 +72,8 @@ func CheckInsecureHTTP(n ast.Node, fset *token.FileSet, filename string) {
                 if x, ok := fun.X.(*ast.Ident); ok && x.Name == "fmt" && fun.Sel.Name == "Sprintf" {
                     if containsHTTPInSprintfArgs(argType) {
                         pos := fset.Position(argType.Pos())
-                        fmt.Printf("%s:%d:%d: [WARNING] Insecure HTTP: potential HTTP URL in fmt.Sprintf for %s\n", 
-                            pos.Filename, pos.Line, pos.Column, funcName)
+                        output.PrintSecurityIssue(pos.Filename, pos.Line, pos.Column, 
+                            "Insecure HTTP", "potential HTTP URL in fmt.Sprintf for " + funcName)
                     }
                 }
             }
