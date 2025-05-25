@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 import "os"
-import "cli/output"
+import "github.com/vichekaoeun/scango-lite/output"
 
 func printHelp() {
     fmt.Println(`gosec-lite - A lightweight static analyzer for Go security issues

@@ -4,7 +4,7 @@ import (
     "go/ast"
     "go/token"
     "strings"
-    "cli/output"
+    "github.com/vichekaoeun/scango-lite/output"
 )
 
 func CheckCommandInjection(n ast.Node, fset *token.FileSet, filename string) {

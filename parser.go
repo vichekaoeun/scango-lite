@@ -7,7 +7,7 @@ import (
     "go/ast"
     "os"
     "path/filepath"
-    "cli/rules"
+    "github.com/vichekaoeun/scango-lite/rules"
 )
 
 //Parsing Logic
