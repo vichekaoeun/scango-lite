@@ -11,9 +11,9 @@ go install github.com/vichekaoeun/scango-lite@latest
 
 Scan current directory for security issues
 ```
-goscan-lite run
+scango-lite run
 ```
 Show help
 ```
-goscan-lite help
+scango-lite help
 ```
