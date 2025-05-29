@@ -5,10 +5,13 @@ import "os"
 import "github.com/vichekaoeun/scango-lite/output"
 
 func printHelp() {
-    fmt.Println(`gosec-lite - A lightweight static analyzer for Go security issues
+    fmt.Println(`scango-lite - A lightweight static analyzer for Go security issues
 
 Usage:
-  go run main.go <command>
+  scango-lite <command>
+
+Directory:
+  cd into the directory you want scanned.
 
 Available commands:
   run       Scan the current directory for .go files and insecure patterns
@@ -31,7 +34,7 @@ func scanCurrDir() {
 
 func main() {
     if len(os.Args) < 2{ //when user doesn't provide a command
-        fmt.Println("Please provide a command, gosec-lite <command>")
+        fmt.Println("Please provide a command, scango-lite <command>")
         os.Exit(1)
     }
     command := os.Args[1] //capture command from 1st argument
