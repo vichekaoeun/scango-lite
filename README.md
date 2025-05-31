@@ -14,8 +14,11 @@ go install github.com/vichekaoeun/scango-lite@latest
 ## Which Installation Method?
 
 **For daily development:** Use `go install` (faster, simpler)
-**For CI/CD pipelines:** Use Docker (consistent across environments)  
+<br>
+**For CI/CD pipelines:** Use Docker (consistent across environments)
+<br>
 **For teams with mixed Go versions:** Use Docker (avoids conflicts)
+<br>
 
 ## Usage
 
