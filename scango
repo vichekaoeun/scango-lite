@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+if ! docker image inspect scango-lite >/dev/null 2>&1; then
+    echo "Pulling scango-lite image..."
+    docker pull ghcr.io/vichekaoeun/scango-lite:latest
+    docker tag ghcr.io/vichekaoeun/scango-lite:latest scango-lite
+fi
+
+docker run --rm -v "$(pwd)":/src scango-lite "$@"
