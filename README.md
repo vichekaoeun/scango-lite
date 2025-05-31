@@ -6,11 +6,11 @@ A lightweight static analyzer for Go security issues.
 **Go 1.23 version using Alpine Linux**:
 ```bash
 curl -sSL https://raw.githubusercontent.com/vichekaoeun/scango-lite/main/install.sh | bash
-
+```
 **Go 1.21+ using your local OS**
 ```bash
 go install github.com/vichekaoeun/scango-lite@latest
-
+```
 ## Which Installation Method?
 
 **For daily development:** Use `go install` (faster, simpler)
