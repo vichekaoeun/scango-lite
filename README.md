@@ -5,11 +5,11 @@ A lightweight static analyzer for Go security issues.
 ## Installation
 
 ```bash
-go install github.com/vichekaoeun/scango-lite@latest
+curl -sSL https://raw.githubusercontent.com/vichekaoeun/scango-lite/main/install.sh | bash
 ```
-**NOTE**: If installation says any release <1.1.0 then run the latest release instead:
+**NOTE**: Alternatively if that doesn't works, run this command instead.
 ```bash
-go install github.com/vichekaoeun/scango-lite@v1.1.0
+go install github.com/vichekaoeun/scango-lite@latest
 ```
 
 ## Usage
